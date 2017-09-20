@@ -66,12 +66,10 @@ if (settings.heavy != true) {
     getsupply - Returns the current money supply.
     getmaxmoney - Returns the maximum possible money supply.
   */
-    bitcoinapi.setAccess('only', [
-	'getinfo', 'getstakinginfo', 'getnetworkghps',
-	'getmininginfo', 'getdifficulty', 'getconnectioncount', 'getpeerinfo',
-	'getblockcount', 'getblockhash', 'getblock', 'getrawtransaction','getmaxmoney', 'getvote',
-	'getmaxvote', 'getphase', 'getreward', 'getnextrewardestimate', 'getnextrewardwhenstr',
-	'getnextrewardwhensec', 'getsupply', 'gettxoutsetinfo', 'sendrawtransaction']);
+  bitcoinapi.setAccess('only', ['getinfo', 'getstakinginfo', 'getnetworkghps', 'getdifficulty', 'getconnectioncount',
+    'getblockcount', 'getblockhash', 'getblock', 'getrawtransaction','getmaxmoney', 'getvote',
+    'getmaxvote', 'getphase', 'getreward', 'getnextrewardestimate', 'getnextrewardwhenstr',
+    'getnextrewardwhensec', 'getsupply', 'gettxoutsetinfo', 'sendrawtransaction']);
 }
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
