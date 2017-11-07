@@ -96,7 +96,16 @@ app.use('/ext/txinfo/:hash', function(req,res){
 });
 
 app.use('/ext/getaddress/:hash', function(req,res){
-  db.get_address(req.param('hash'), function(address){
+  // TODO: support multiple addresses
+  var addresses = req.param('hash').split(',');
+  var addrhash = addresses[0];
+  var fulltx = req.param('fulltx');
+
+  if(addresses.length > 1) {
+    console.log("WARN: TODO: addresses is more than one, but only checking one.");
+  }
+
+  db.get_address(addrhash, function(address){
     if (address) {
       var a_ext = {
         address: address.a_id,
@@ -105,9 +114,30 @@ app.use('/ext/getaddress/:hash', function(req,res){
         balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
         last_txs: address.txs,
       };
+
+      if(fulltx) {
+          var txs = [];
+	  txs = _.map(address.txs, function(atx) {
+	      db.get_tx(atx.txid, function(tx){
+		  if (tx) {
+		      var a_ext = {
+			  txid: tx.txid,
+			  blockindex: tx.blockindex,
+			  timestamp: tx.timestamp,
+			  total: tx.total,
+			  inputs: tx.vin,
+			  outputs: tx.vout,
+		      };
+		  }
+		  return a_ext;
+	      });
+	      
+	  });
+      }
+
       res.send(a_ext);
     } else {
-      res.send({ error: 'address not found.', hash: req.param('hash')})
+      res.send({ error: 'address not found.', hash: addrhash})
     }
   });
 });
