@@ -10,9 +10,45 @@ var express = require('express')
   , lib = require('./lib/explorer')
   , db = require('./lib/database')
   , locale = require('./lib/locale')
+  , TxController = require('./lib/insight/transactions')
+  , AddressController = require('./lib/insight/addresses')
+  , InsightAPI = require('./lib/insight/index')
+  , Bitcoin = require('./lib/insight/bitcoind-hybrid')
   , request = require('request');
 
 var app = express();
+
+//app.set('env', 'development');
+
+//app.configure('development', function(){
+//    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+//});
+
+var baseConfig = {
+    node: {
+	network: 'livenet'
+    },
+    connect: {
+        "rpchost": "127.0.0.1",
+        "rpcport": 9422,
+        "rpcuser": "bitcoinrpc",
+        "rpcpassword": "6zoCuaTENA",
+        "zmqpubrawtx": "tcp://127.0.0.1:29422"
+    }
+};
+
+var node = new Bitcoin(baseConfig);
+node.start(function() {
+    console.log("Bitcoin node start()");
+});
+
+var insight = new InsightAPI({
+    enableCache: true,
+    node: node
+});
+
+var transactions = new TxController(node);
+var addresses = new AddressController(node);
 
 // bitcoinapi
 bitcoinapi.setWalletDetails(settings.wallet);
@@ -42,7 +78,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(favicon(path.join(__dirname, settings.favicon)));
-app.use(logger('dev'));
+//app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
@@ -91,6 +127,145 @@ app.use('/ext/txinfo/:hash', function(req,res){
       res.send(a_ext);
     } else {
       res.send({ error: 'tx not found.', hash: req.param('hash')})
+    }
+  });
+});
+
+app.use('/ext/testing', function(req,res){
+    var addrs = req.body.addrs;
+    console.log("POST /ext/testing");
+    console.log(req.body);
+    var addrout = "";
+    if(req.body.addrs) {
+	addrout = "req.body.addrs exists";
+    }
+    else {
+	addrout = "req.body.addrs not exist";
+    }
+    
+    var testout = {testing: "one two 3", addrs: addrs };
+    res.send(testout);
+});
+
+app.post('/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+
+app.use('/insight-api/addrs/utxo', function(req,res){
+  // port of POST insight-api/addrs/utxo
+
+  // reimplement Bitcore Insight API /addrs/utxo for use by wallet service. 
+  // POST json { addrs: x,x,x } 
+
+  // caller will expect this:
+  //var u = _.pick(utxo, ['txid', 'vout', 'address', 'scriptPubKey', 'amount', 'satoshis', 'confirmations'])
+  //       u.txid = utxo.tx_hash;
+  //       u.vout = utxo.tx_ouput_n;
+  //       u.address = address;
+  //       u.scriptPubKey = utxo.script;
+  //       u.satoshis = utxo.value;
+  //       u.confirmations = null;
+    var addrs = req.body.addrs;
+    console.log("POST /insight-api/addrs/utxo");
+    console.log(req.body);
+
+  var addresses = addrs.split(',');
+  var addrhash = addresses[0];
+  var fulltx = req.param('fulltx');
+
+  if(addresses.length > 1) {
+    console.log("WARN: TODO: addresses is more than one, but only checking one.");
+  }
+
+  db.get_address(addrhash, function(address){
+    if (address) {
+      var a_ext = {
+        address: address.a_id,
+        sent: (address.sent / 100000000),
+        received: (address.received / 100000000),
+        balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
+        last_txs: address.txs,
+      };
+
+      if(fulltx) {
+          var txs = [];
+	  txs = _.map(address.txs, function(atx) {
+	      db.get_tx(atx.txid, function(tx){
+		  if (tx) {
+		      var a_ext = {
+			  txid: tx.txid,
+			  blockindex: tx.blockindex,
+			  timestamp: tx.timestamp,
+			  total: tx.total,
+			  inputs: tx.vin,
+			  outputs: tx.vout,
+		      };
+		  }
+		  return a_ext;
+	      });
+	      
+	  });
+      }
+
+      res.send(a_ext);
+    } else {
+      res.status(400).send({ error: 'address not found.', hash: addrhash})
+    }
+  });
+});
+
+app.use('/ext/addrs/utxo', function(req,res){
+  // reimplement Bitcore Insight API /addrs/utxo for use by wallet service. 
+  // POST json { addrs: x,x,x } 
+
+  // caller will expect this:
+  //var u = _.pick(utxo, ['txid', 'vout', 'address', 'scriptPubKey', 'amount', 'satoshis', 'confirmations'])
+  //       u.txid = utxo.tx_hash;
+  //       u.vout = utxo.tx_ouput_n;
+  //       u.address = address;
+  //       u.scriptPubKey = utxo.script;
+  //       u.satoshis = utxo.value;
+  //       u.confirmations = null;
+
+  var addresses = req.param('addrs').split(',');
+  var addrhash = addresses[0];
+  var fulltx = req.param('fulltx');
+
+  if(addresses.length > 1) {
+    console.log("WARN: TODO: addresses is more than one, but only checking one.");
+  }
+
+  db.get_address(addrhash, function(address){
+    if (address) {
+      var a_ext = {
+        address: address.a_id,
+        sent: (address.sent / 100000000),
+        received: (address.received / 100000000),
+        balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
+        last_txs: address.txs,
+      };
+
+      if(fulltx) {
+          var txs = [];
+	  txs = _.map(address.txs, function(atx) {
+	      db.get_tx(atx.txid, function(tx){
+		  if (tx) {
+		      var a_ext = {
+			  txid: tx.txid,
+			  blockindex: tx.blockindex,
+			  timestamp: tx.timestamp,
+			  total: tx.total,
+			  inputs: tx.vin,
+			  outputs: tx.vout,
+		      };
+		  }
+		  return a_ext;
+	      });
+	      
+	  });
+      }
+
+      res.send(a_ext);
+    } else {
+      res.status(400).send({ error: 'address not found.', hash: addrhash})
     }
   });
 });
@@ -217,6 +392,10 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
+	if( err.status !== 404 ) {
+	    console.log("development error handler:" + err.message);
+	    console.log(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+	}
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
@@ -228,6 +407,7 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
+    console.log("production error handler");
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,
