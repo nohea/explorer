@@ -1,0 +1,16 @@
+{
+  "network": "livenet",
+  "servicesConfig": {
+    "bitcoind": {
+      "connect": [
+        {
+            "rpchost": "127.0.0.1",
+            "rpcport": 9422,
+            "rpcuser": "bitcoinrpc",
+            "rpcpassword": "x",
+            "zmqpubrawtx": "tcp://127.0.0.1:29422"
+        }
+      ]
+    }
+  }
+}

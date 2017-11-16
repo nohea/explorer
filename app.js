@@ -24,20 +24,13 @@ var app = express();
 //    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 //});
 
-var baseConfig = {
-    node: {
-	network: 'livenet'
-    },
-    connect: {
-        "rpchost": "127.0.0.1",
-        "rpcport": 9422,
-        "rpcuser": "bitcoinrpc",
-        "rpcpassword": "6zoCuaTENA",
-        "zmqpubrawtx": "tcp://127.0.0.1:29422"
-    }
-};
+var fs = require('fs');
+var bitcoreNodeConfigFile = "bitcore-node.json";
+var bitcoreNodeConfig = JSON.parse(fs.readFileSync(bitcoreNodeConfigFile, 'utf-8'));
+// pass to node
+bitcoreNodeConfig.lib = lib;
 
-var node = new Bitcoin(baseConfig);
+var node = new Bitcoin(bitcoreNodeConfig);
 node.start(function() {
     console.log("Bitcoin node start()");
 });
@@ -147,7 +140,7 @@ app.use('/ext/testing', function(req,res){
     res.send(testout);
 });
 
-app.post('/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+app.post('/api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
 
 app.use('/insight-api/addrs/utxo', function(req,res){
   // port of POST insight-api/addrs/utxo
