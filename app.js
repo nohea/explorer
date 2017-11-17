@@ -30,9 +30,12 @@ var bitcoreNodeConfig = JSON.parse(fs.readFileSync(bitcoreNodeConfigFile, 'utf-8
 // pass to node
 bitcoreNodeConfig.lib = lib;
 
+// note: originally 'bitcore-node' is the node object, but it has been modified
+// to be the 'bitcoind-rpc' object, since we are not dependent on a host bitcore-node.
 var node = new Bitcoin(bitcoreNodeConfig);
 node.start(function() {
     console.log("Bitcoin node start()");
+    console.log("node.height = " + node.height);
 });
 
 var insight = new InsightAPI({
@@ -61,10 +64,12 @@ if (settings.heavy != true) {
     getsupply - Returns the current money supply.
     getmaxmoney - Returns the maximum possible money supply.
   */
-  bitcoinapi.setAccess('only', ['getinfo', 'getstakinginfo', 'getnetworkhashps', 'getdifficulty', 'getconnectioncount',
-    'getblockcount', 'getblockhash', 'getblock', 'getrawtransaction','getmaxmoney', 'getvote',
-    'getmaxvote', 'getphase', 'getreward', 'getnextrewardestimate', 'getnextrewardwhenstr',
-    'getnextrewardwhensec', 'getsupply', 'gettxoutsetinfo']);
+    bitcoinapi.setAccess('only', [
+	'getinfo', 'getstakinginfo', 'getnetworkghps',
+	'getmininginfo', 'getdifficulty', 'getconnectioncount', 'getpeerinfo',
+	'getblockcount', 'getblockhash', 'getblock', 'getrawtransaction','getmaxmoney', 'getvote',
+	'getmaxvote', 'getphase', 'getreward', 'getnextrewardestimate', 'getnextrewardwhenstr',
+	'getnextrewardwhensec', 'getsupply', 'gettxoutsetinfo', 'sendrawtransaction']);
 }
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -389,6 +394,7 @@ if (app.get('env') === 'development') {
 	    console.log("development error handler:" + err.message);
 	    console.log(JSON.stringify(err, Object.getOwnPropertyNames(err)));
 	}
+	//console.log("dev: " + err.message + " " + err.status + " " + req.originalUrl);
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
