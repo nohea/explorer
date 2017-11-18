@@ -129,20 +129,31 @@ app.use('/ext/txinfo/:hash', function(req,res){
   });
 });
 
-app.use('/ext/testing', function(req,res){
-    var addrs = req.body.addrs;
-    console.log("POST /ext/testing");
-    console.log(req.body);
-    var addrout = "";
-    if(req.body.addrs) {
-	addrout = "req.body.addrs exists";
+app.use('/ext/rates/:currency', function(req,res){
+    var currency = req.param('currency');
+    // TODO: get some real sources
+    if (currency && currency === 'ALCP') {
+	var rates = [
+		{"code":"BTC","name":"Bitcoin","rate":0.01},
+		{"code":"USD","name":"US Dollar","rate": 0.9 },
+		{"code":"EUR","name":"Eurozone Euro","rate": 1.1 },
+		{"code":"GBP","name":"Pound Sterling","rate": 1.1 },
+		{"code":"JPY","name":"Japanese Yen","rate": 10010.00 },
+		{"code":"CAD","name":"Canadian Dollar","rate": 1.55 },
+		{"code":"AUD","name":"Australian Dollar","rate": 2.10 },
+		{"code":"CNY","name":"Chinese Yuan","rate": 6000.00 },
+		{"code":"CHF","name":"Swiss Franc","rate": 1.3 },
+		{"code":"SEK","name":"Swedish Krona","rate": 7500.00  },
+		{"code":"NZD","name":"New Zealand Dollar","rate": 1.0  },
+		{"code":"KRW","name":"South Korean Won","rate": 20000.00 },
+		{"code":"AED","name":"UAE Dirham","rate": 4000.00 }
+	];
+
+	res.send(rates);
     }
     else {
-	addrout = "req.body.addrs not exist";
+	res.send({ error: 'currency not found.', currency: currency})
     }
-    
-    var testout = {testing: "one two 3", addrs: addrs };
-    res.send(testout);
 });
 
 app.post('/api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
