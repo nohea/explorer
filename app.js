@@ -156,7 +156,15 @@ app.use('/ext/rates/:currency', function(req,res){
     }
 });
 
+//app.post('/api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+
+app.get('/api/addr/:addr', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.show.bind(addresses));
+app.get('/api/addr/:addr/utxo', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.utxo.bind(addresses));
+app.get('/api/addrs/:addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
 app.post('/api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+app.get('/api/addrs/:addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
+app.post('/api/addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
+
 
 app.use('/insight-api/addrs/utxo', function(req,res){
   // port of POST insight-api/addrs/utxo
@@ -181,7 +189,7 @@ app.use('/insight-api/addrs/utxo', function(req,res){
   var fulltx = req.param('fulltx');
 
   if(addresses.length > 1) {
-    console.log("WARN: TODO: addresses is more than one, but only checking one.");
+    console.log("WARN: /insight-api/addrs/utxo TODO: addresses is more than one, but only checking one.");
   }
 
   db.get_address(addrhash, function(address){
@@ -239,7 +247,7 @@ app.use('/ext/addrs/utxo', function(req,res){
   var fulltx = req.param('fulltx');
 
   if(addresses.length > 1) {
-    console.log("WARN: TODO: addresses is more than one, but only checking one.");
+    console.log("WARN: /ext/addrs/utxo TODO: addresses is more than one, but only checking one.");
   }
 
   db.get_address(addrhash, function(address){
@@ -286,7 +294,7 @@ app.use('/ext/getaddress/:hash', function(req,res){
   var fulltx = req.param('fulltx');
 
   if(addresses.length > 1) {
-    console.log("WARN: TODO: addresses is more than one, but only checking one.");
+    console.log("WARN: /ext/getaddress/:hash TODO: addresses is more than one, but only checking one.");
   }
 
   db.get_address(addrhash, function(address){
