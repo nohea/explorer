@@ -156,14 +156,12 @@ app.use('/ext/rates/:currency', function(req,res){
     }
 });
 
-//app.post('/api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
-
-app.get('/api/addr/:addr', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.show.bind(addresses));
-app.get('/api/addr/:addr/utxo', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.utxo.bind(addresses));
-app.get('/api/addrs/:addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
-app.post('/api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
-app.get('/api/addrs/:addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
-app.post('/api/addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
+app.get('/insight-api/addr/:addr', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.show.bind(addresses));
+app.get('/insight-api/addr/:addr/utxo', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.utxo.bind(addresses));
+app.get('/insight-api/addrs/:addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+app.post('/insight-api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+app.get('/insight-api/addrs/:addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
+app.post('/insight-api/addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
 
 
 app.use('/ext/getaddress/:hash', function(req,res){
