@@ -35,7 +35,7 @@ bitcoreNodeConfig.lib = lib;
 var node = new Bitcoin(bitcoreNodeConfig);
 node.start(function() {
     console.log("Bitcoin node start()");
-    console.log("node.height = " + node.height);
+    console.log("startup node.height = " + node.height);
 });
 
 var insight = new InsightAPI({
@@ -165,127 +165,6 @@ app.post('/api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addr
 app.get('/api/addrs/:addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
 app.post('/api/addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
 
-
-app.use('/insight-api/addrs/utxo', function(req,res){
-  // port of POST insight-api/addrs/utxo
-
-  // reimplement Bitcore Insight API /addrs/utxo for use by wallet service. 
-  // POST json { addrs: x,x,x } 
-
-  // caller will expect this:
-  //var u = _.pick(utxo, ['txid', 'vout', 'address', 'scriptPubKey', 'amount', 'satoshis', 'confirmations'])
-  //       u.txid = utxo.tx_hash;
-  //       u.vout = utxo.tx_ouput_n;
-  //       u.address = address;
-  //       u.scriptPubKey = utxo.script;
-  //       u.satoshis = utxo.value;
-  //       u.confirmations = null;
-    var addrs = req.body.addrs;
-    console.log("POST /insight-api/addrs/utxo");
-    console.log(req.body);
-
-  var addresses = addrs.split(',');
-  var addrhash = addresses[0];
-  var fulltx = req.param('fulltx');
-
-  if(addresses.length > 1) {
-    console.log("WARN: /insight-api/addrs/utxo TODO: addresses is more than one, but only checking one.");
-  }
-
-  db.get_address(addrhash, function(address){
-    if (address) {
-      var a_ext = {
-        address: address.a_id,
-        sent: (address.sent / 100000000),
-        received: (address.received / 100000000),
-        balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
-        last_txs: address.txs,
-      };
-
-      if(fulltx) {
-          var txs = [];
-	  txs = _.map(address.txs, function(atx) {
-	      db.get_tx(atx.txid, function(tx){
-		  if (tx) {
-		      var a_ext = {
-			  txid: tx.txid,
-			  blockindex: tx.blockindex,
-			  timestamp: tx.timestamp,
-			  total: tx.total,
-			  inputs: tx.vin,
-			  outputs: tx.vout,
-		      };
-		  }
-		  return a_ext;
-	      });
-	      
-	  });
-      }
-
-      res.send(a_ext);
-    } else {
-      res.status(400).send({ error: 'address not found.', hash: addrhash})
-    }
-  });
-});
-
-app.use('/ext/addrs/utxo', function(req,res){
-  // reimplement Bitcore Insight API /addrs/utxo for use by wallet service. 
-  // POST json { addrs: x,x,x } 
-
-  // caller will expect this:
-  //var u = _.pick(utxo, ['txid', 'vout', 'address', 'scriptPubKey', 'amount', 'satoshis', 'confirmations'])
-  //       u.txid = utxo.tx_hash;
-  //       u.vout = utxo.tx_ouput_n;
-  //       u.address = address;
-  //       u.scriptPubKey = utxo.script;
-  //       u.satoshis = utxo.value;
-  //       u.confirmations = null;
-
-  var addresses = req.param('addrs').split(',');
-  var addrhash = addresses[0];
-  var fulltx = req.param('fulltx');
-
-  if(addresses.length > 1) {
-    console.log("WARN: /ext/addrs/utxo TODO: addresses is more than one, but only checking one.");
-  }
-
-  db.get_address(addrhash, function(address){
-    if (address) {
-      var a_ext = {
-        address: address.a_id,
-        sent: (address.sent / 100000000),
-        received: (address.received / 100000000),
-        balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
-        last_txs: address.txs,
-      };
-
-      if(fulltx) {
-          var txs = [];
-	  txs = _.map(address.txs, function(atx) {
-	      db.get_tx(atx.txid, function(tx){
-		  if (tx) {
-		      var a_ext = {
-			  txid: tx.txid,
-			  blockindex: tx.blockindex,
-			  timestamp: tx.timestamp,
-			  total: tx.total,
-			  inputs: tx.vin,
-			  outputs: tx.vout,
-		      };
-		  }
-		  return a_ext;
-	      });
-	      
-	  });
-      }
-
-      res.send(a_ext);
-    } else {
-      res.status(400).send({ error: 'address not found.', hash: addrhash})
-    }
-  });
-});
 
 app.use('/ext/getaddress/:hash', function(req,res){
   // TODO: support multiple addresses
