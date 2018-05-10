@@ -14,6 +14,7 @@ var express = require('express')
   , AddressController = require('./lib/insight/addresses')
   , InsightAPI = require('./lib/insight/index')
   , Bitcoin = require('./lib/insight/bitcoind-hybrid')
+  , UtilsController = require('./lib/insight/utils')
   , request = require('request');
 
 var app = express();
@@ -45,6 +46,7 @@ var insight = new InsightAPI({
 
 var transactions = new TxController(node);
 var addresses = new AddressController(node);
+var utils = new UtilsController(node);
 
 // bitcoinapi
 bitcoinapi.setWalletDetails(settings.wallet);
@@ -156,12 +158,14 @@ app.use('/ext/rates/:currency', function(req,res){
     }
 });
 
+// Insight routes
 app.get('/insight-api/addr/:addr', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.show.bind(addresses));
 app.get('/insight-api/addr/:addr/utxo', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.utxo.bind(addresses));
 app.get('/insight-api/addrs/:addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
 app.post('/insight-api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
 app.get('/insight-api/addrs/:addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
 app.post('/insight-api/addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
+app.get('/insight-api/utils/estimatefee', utils.estimateFee.bind(utils));
 
 
 app.use('/ext/getaddress/:hash', function(req,res){
