@@ -95,9 +95,23 @@ function is_locked(cb) {
     var fname = './tmp/' + database + '.pid';
     fs.exists(fname, function (exists){
       if(exists) {
-        return cb(true);
-      } else {
-        return cb(false);
+	// check if older than a day, then remove
+	fs.stat(fname, function(err, stats) {
+	  if(err) { console.log(err); return cb(false); }
+	  
+	  var lockFileTime = new Date(stats.mtime);
+	  var now = new Date();
+	  var yesterdayTime = new Date(now.getTime() - 1000*60*60*24*1);
+	  if(lockFileTime < yesterdayTime) {
+	    console.log("lock file too old, removing...");
+	    remove_lock(function() { console.log("removed"); });
+	  }
+	  
+	  return cb(true);
+	});
+      }
+      else {
+	return cb(false);
       }
     });
   } else {
