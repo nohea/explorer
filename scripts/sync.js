@@ -101,8 +101,9 @@ function is_locked(cb) {
 	  
 	  var lockFileTime = new Date(stats.mtime);
 	  var now = new Date();
-	  var yesterdayTime = new Date(now.getTime() - 1000*60*60*24*1);
-	  if(lockFileTime < yesterdayTime) {
+	  // older than an hour, don't respect lock file
+	  var staleLockTime = new Date(now.getTime() - 1000*60*60);
+	  if(lockFileTime < staleLockTime) {
 	    console.log("lock file too old, removing...");
 	    remove_lock(function() { console.log("removed"); });
 	  }
