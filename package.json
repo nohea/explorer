@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "alohacoind-rpc": "file:../../alohacoin/alohacore/alohacoind-rpc",
+    "alohacore-lib": "file:../../alohacoin/alohacore/alohacore-lib",
+    "alohacore-message": "file:../../alohacoin/alohacore/alohacore-message",
     "async": "^2.6.0",
     "bitcoin-node-api": "0.1.0",
     "body-parser": "~1.0.0",
