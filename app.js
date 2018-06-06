@@ -167,6 +167,12 @@ app.get('/insight-api/addrs/:addrs/txs', insight.cacheShort(), addresses.checkAd
 app.post('/insight-api/addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
 app.get('/insight-api/utils/estimatefee', utils.estimateFee.bind(utils));
 
+app.post('/insight-api/tx/send', transactions.send.bind(transactions));
+
+app.get('/insight-api/tx/:txid', insight.cacheShort(), transactions.show.bind(transactions));
+app.param('txid', transactions.transaction.bind(transactions));
+app.get('/insight-api/txs', insight.cacheShort(), transactions.list.bind(transactions));
+
 
 app.use('/ext/getaddress/:hash', function(req,res){
   // TODO: support multiple addresses
