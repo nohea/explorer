@@ -159,19 +159,19 @@ app.use('/ext/rates/:currency', function(req,res){
 });
 
 // Insight routes
-app.get('/insight-api/addr/:addr', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.show.bind(addresses));
-app.get('/insight-api/addr/:addr/utxo', insight.cacheShort(), addresses.checkAddr.bind(addresses), addresses.utxo.bind(addresses));
-app.get('/insight-api/addrs/:addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
-app.post('/insight-api/addrs/utxo', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
-app.get('/insight-api/addrs/:addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
-app.post('/insight-api/addrs/txs', insight.cacheShort(), addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
+app.get('/insight-api/addr/:addr', addresses.checkAddr.bind(addresses), addresses.show.bind(addresses));
+app.get('/insight-api/addr/:addr/utxo', addresses.checkAddr.bind(addresses), addresses.utxo.bind(addresses));
+app.get('/insight-api/addrs/:addrs/utxo', addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+app.post('/insight-api/addrs/utxo', addresses.checkAddrs.bind(addresses), addresses.multiutxo.bind(addresses));
+app.get('/insight-api/addrs/:addrs/txs', addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
+app.post('/insight-api/addrs/txs', addresses.checkAddrs.bind(addresses), addresses.multitxs.bind(addresses));
 app.get('/insight-api/utils/estimatefee', utils.estimateFee.bind(utils));
 
 app.post('/insight-api/tx/send', transactions.send.bind(transactions));
 
-app.get('/insight-api/tx/:txid', insight.cacheShort(), transactions.show.bind(transactions));
+app.get('/insight-api/tx/:txid', transactions.show.bind(transactions));
 app.param('txid', transactions.transaction.bind(transactions));
-app.get('/insight-api/txs', insight.cacheShort(), transactions.list.bind(transactions));
+app.get('/insight-api/txs', transactions.list.bind(transactions));
 
 
 app.use('/ext/getaddress/:hash', function(req,res){
