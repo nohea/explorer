@@ -32,7 +32,8 @@ var bitcoreNodeConfig = JSON.parse(fs.readFileSync(bitcoreNodeConfigFile, 'utf-8
 bitcoreNodeConfig.lib = lib;
 
 // note: originally 'bitcore-node' is the node object, but it has been modified
-// to be the 'bitcoind-rpc' object, since we are not dependent on a host bitcore-node.
+// to be the 'bitcoind-hybrid' object, since we are not dependent on a host
+// bitcore-node.
 var node = new Bitcoin(bitcoreNodeConfig);
 node.start(function() {
     console.log("Bitcoin node start()");
