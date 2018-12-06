@@ -46,6 +46,7 @@ block content
               var amount = json.data[i]['total'] / 100000000;
               json.data[i]['total'] = amount.toFixed(8);
               json.data[i]['recipients'] = json.data[i]['vout'].length;
+              json.data[i]['flags'] = json.data[i]['flags'];
             }
             return json.data;
           }
@@ -54,8 +55,9 @@ block content
           { data: 'blockindex', width: '8%' },
           { data: 'txid', width: '40%' },
           { data: 'recipients', width:'5%' },
-          { data: 'total', width: '15%' },
-          { data: 'timestamp', width: '25%' },
+          { data: 'total', width: '10%' },
+          { data: 'timestamp', width: '20%' },
+          { data: 'flags', width: '10%' },
         ]
       });
       setInterval( function () {
@@ -86,6 +88,7 @@ block content
             th.hidden-xs.text-center #{settings.locale.tx_recipients}
             th.text-center #{settings.locale.mkt_amount} (#{settings.symbol})
             th.text-center #{settings.locale.timestamp}
+            th.text-center #{settings.locale.ex_flags}
         tbody.text-center
     .footer-padding
       

@@ -30,6 +30,7 @@ block content
             th.hidden-xs #{settings.locale.size} (kB)
             th.hidden-xs #{settings.locale.bits}
             th.hidden-xs #{settings.locale.nonce}
+            th.hidden-xs #{settings.locale.ex_flags}
             th.hidden-xs #{settings.locale.timestamp}
         tbody
           if block.confirmations >= confirmations                
@@ -43,6 +44,7 @@ block content
               td.hidden-xs #{block_size.toFixed(2)}
               td.hidden-xs #{block.bits}
               td.hidden-xs #{block.nonce}
+              td.hidden-xs #{block.flags}
               td.hidden-xs #{time}
           else
             if block.confirmations < (confirmations / 2)
@@ -56,6 +58,7 @@ block content
                 td.hidden-xs #{block_size.toFixed(2)}
                 td.hidden-xs #{block.bits}
                 td.hidden-xs #{block.nonce}
+                td.hidden-xs #{block.flags}
                 td.hidden-xs #{time}
             else
               tr.warning
@@ -68,6 +71,7 @@ block content
                 td.hidden-xs #{block_size.toFixed(2)}
                 td.hidden-xs #{block.bits}
                 td.hidden-xs #{block.nonce}
+                td.hidden-xs #{block.flags}
                 td.hidden-xs #{time}
 
     if block.hash == settings.genesis_block
