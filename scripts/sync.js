@@ -9,7 +9,6 @@ var mongoose = require('mongoose')
 
 var mode = 'update';
 var database = 'index';
-var updatefromblockno = 0;
 
 // displays usage and exits
 function usage() {
@@ -21,7 +20,6 @@ function usage() {
   console.log('');
   console.log('mode: (required for index database only)');
   console.log('update       Updates index from last sync to current block');
-  console.log('updatefrom [blockno] Updates index from specified blockno to current block');
   console.log('check        checks index for (and adds) any missing transactions/addresses');
   console.log('reindex      Clears index then resyncs from genesis to current block');
   console.log('');
@@ -43,10 +41,6 @@ if (process.argv[2] == 'index') {
     {
     case 'update':
       mode = 'update';
-      break;
-    case 'updatefrom':
-      updatefromblockno = Number(process.argv[4]) || 0;
-      mode = 'updatefrom';
       break;
     case 'check':
       mode = 'check';
@@ -188,24 +182,12 @@ is_locked(function (exists) {
                           });
                         });
                       });
-                    });
+                    });              
                   } else if (mode == 'check') {
                     db.update_tx_db(settings.coin, 1, stats.count, settings.check_timeout, function(){
                       db.get_stats(settings.coin, function(nstats){
                         console.log('check complete (block: %s)', nstats.last);
                         exit();
-                      });
-                    });
-                  } else if (mode == 'updatefrom') {
-                    console.log('updatefrom: block ', updatefromblockno);
-                    db.update_tx_db(settings.coin, updatefromblockno, stats.count, settings.update_timeout, function(){
-                      db.update_richlist('received', function(){
-                        db.update_richlist('balance', function(){
-                          db.get_stats(settings.coin, function(nstats){
-                            console.log('update complete (block: %s)', nstats.last);
-                            exit();
-                          });
-                        });
                       });
                     });
                   } else if (mode == 'update') {
